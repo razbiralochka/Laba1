@@ -3,14 +3,12 @@ import math
 import matplotlib.pyplot as plt
 import random
 import scipy
-T = []
-Phi_list = []
 
 def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
 
 
    # list_Kg=[80*0.001,160*0.001,400*0.001,4]
-    Kg=3
+    Kg=4
     R0=6371
 
     H0=_H0
@@ -42,15 +40,10 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
 
 
 
-
-
-
-
-
-    def f1(t, _phi, _omega):
+    def dphi(t, _phi, _omega):
         return _omega
 
-    def f2(t, _phi, _omega):
+    def domega(t, _phi, _omega):
         res = -C * _phi - K * _omega
         res = res *(1+random.randint(-_rand,_rand)/100)
         return res
@@ -68,63 +61,66 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
     h=1
     t=0
 
+    T = []
+    Phi_list = []
 
 
     while t < pow(2,17):
         Phi_list.append(phi*180/math.pi)
         T.append(t)
         K =K_theor * (1 + random.randint(-_rand, _rand) / 100)
-        k[0] = h * f1(t,phi,omega)
-        q[0] = h * f2(t,phi,omega)
-        k[1] = h * f1(t+h/2,phi+k[0]/2,omega+q[0]/2)
-        q[1] = h * f2(t+h/2,phi+k[0]/2,omega+q[0]/2)
-        k[2] = h * f1(t+h/2,phi+k[1]/2,omega+q[1]/2)
-        q[2] = h * f2(t+h/2,phi+k[1]/2,omega+q[1]/2)
-        k[3] = h * f1(t+h,phi+k[2],omega+q[2])
-        q[3] = h * f2(t+h,phi+k[2],omega+q[2])
+        k[0] = h * dphi(t,phi,omega)
+        q[0] = h * domega(t,phi,omega)
+        k[1] = h * dphi(t+h/2,phi+k[0]/2,omega+q[0]/2)
+        q[1] = h * domega(t+h/2,phi+k[0]/2,omega+q[0]/2)
+        k[2] = h * dphi(t+h/2,phi+k[1]/2,omega+q[1]/2)
+        q[2] = h * domega(t+h/2,phi+k[1]/2,omega+q[1]/2)
+        k[3] = h * dphi(t+h,phi+k[2],omega+q[2])
+        q[3] = h * domega(t+h,phi+k[2],omega+q[2])
         phi = phi + (k[0]+2*k[1]+2*k[2]+k[3])/6
         omega = omega + (q[0]+2*q[1]+2*q[2]+q[3])/6
         t = t + h
 
+    fig, ax = plt.subplots()       
+    ax.plot(T, Phi_list, label='Ð’Ð¾Ð·Ð¼ÑƒÑ‰ÐµÐ½Ð¸Ñ: '+str(_rand) +'%' )
+    ax.grid()
+    ax.legend(loc=2)
+    ax.set_xlabel('Ð²Ñ€ÐµÐ¼Ñ (Ñ)')
+    ax.set_ylabel('Ð£Ð³Ð¾Ð» (Ð³Ñ€Ð°Ð´.)')
 
-
-
-
-
-
-def main():
-
-    simulation(500,0.7,450,12,35,0.05,10,10) #Äàííûå ì âàðèàíòà + ðàíäîì â %
-    plt.plot(T, Phi_list, label='ñëó÷àéíûå îòêëîíåíèÿ')
-    plt.legend(loc=2)
     plt.show()
 
     N = len(Phi_list)
 
     y=np.array(Phi_list)
     yf=scipy.fft.fft(y)/(N/2)
-    xf = scipy.fft.fftfreq(N, 1/N)/N
-    plt.plot(xf,np.abs(yf), label='À×Õ ñ ïîìåõàìè')
-    plt.legend(loc=2)
-    plt.xlim([0,0.001])
+    xf = pow(10,4)*scipy.fft.fftfreq(N, 1/N)/N
+    
+    fig, ax = plt.subplots()
+    ax.plot(xf,np.abs(yf), label='ÐÐ§Ð¥ | Ð’Ð¾Ð·Ð¼ÑƒÑ‰ÐµÐ½Ð¸Ñ: '+str(_rand) +'%' )
+    ax.grid()
+    ax.legend(loc=2)
+    plt.xlim([2,4])
+    ax.set_xlabel('Ð§Ð°ÑÑ‚Ð¾Ñ‚Ð° (Ð³ÐµÑ€Ñ† * 10^(-4))')
+    ax.set_ylabel('ÐÐ¼Ð¿Ð»Ð¸Ñ‚ÑƒÑ‚Ð° (Ð³Ñ€Ð°Ð´.)')
     plt.show()
 
+    
 
 
-    T.clear()
-    Phi_list.clear()
-    simulation(500, 0.7, 450, 12, 35, 0.05, 10, 0)
-    plt.plot(T, Phi_list,label='áåç ïîìåõ')
-    plt.legend(loc=2)
-    plt.show()
-
-    y = np.array(Phi_list)
-    yf = scipy.fft.fft(y) / (N / 2)
-    xf = scipy.fft.fftfreq(N, 1 / N) / N
-    plt.plot(xf, np.abs(yf), label='À×Õ áåç ïîìåõ')
-    plt.legend(loc=2)
-    plt.xlim([0, 0.001])
-    plt.show()
+def main():
+    
+    Mct = 500
+    Rct=0.7
+    H0 = 450
+    m=12
+    l=34
+    r=0.05
+    phi=10
+    
+    simulation(Mct,Rct,H0,m,l,r, phi,10)
+    simulation(Mct,Rct,H0,m,l,r, phi,0)
+    
 
 
 if __name__ == "__main__":
