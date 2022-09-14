@@ -2,7 +2,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import random
-import scipy
+
 
 def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
 
@@ -81,31 +81,114 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
         omega = omega + (q[0]+2*q[1]+2*q[2]+q[3])/6
         t = t + h
 
-    fig, ax = plt.subplots()       
-    ax.plot(T, Phi_list, label='Возмущения: '+str(_rand) +'%' )
-    ax.grid()
-    ax.legend(loc=2)
-    ax.set_xlabel('время (с)')
-    ax.set_ylabel('Угол (град.)')
+         
+    
 
-    plt.show()
+    
 
     N = len(Phi_list)
 
     y=np.array(Phi_list)
-    yf=scipy.fft.fft(y)/(N/2)
-    xf = pow(10,4)*scipy.fft.fftfreq(N, 1/N)/N
+    yf=np.fft.fft(y)/N
+    yf=np.abs(yf)*2
+    xf=np.linspace(0,(N-1),N)
+
+
+    xf=xf[0:int(N/1500)]*pow(10,5)/N
+    yf = yf[0:int(N/1500)]
     
-    fig, ax = plt.subplots()
-    ax.plot(xf,np.abs(yf), label='АЧХ | Возмущения: '+str(_rand) +'%' )
+    
+    
+    
+    fig, [ax1,ax2] = plt.subplots(nrows = 2, ncols = 1 )
+
+
+    ax1.plot(T, Phi_list, label='Возмущения: ' + str(_rand) + '%')
+    ax2.plot(xf, yf, label='АЧХ | Возмущения: ' + str(_rand) + '%')
+    ax1.grid()
+    ax1.legend(loc=2)
+    ax1.set_xlabel('время (с)')
+    ax1.set_ylabel('Угол (град.)')
+
+    ax2.grid()
+    ax2.legend(loc=2)
+
+    ax2.set_xlabel('Частота (герц * 10^(-5))')
+    ax2.set_ylabel('Амплитута (град.)')
+
+    plt.show()
+    
+
+def Asim(_Mct,_Rct,_H0,_m,_l,_r,_phi,):
+
+
+   # list_Kg=[80*0.001,160*0.001,400*0.001,4]
+    Kg=4
+    R0=6371
+
+    H0=_H0
+    Mct=_Mct
+    Rct=_Rct
+    m=_m
+    l=_l
+    r=_r
+    phi=_phi
+
+    Mu=3.9858*pow(10, 5)
+
+
+    J0=0.4*Mct*pow(Rct, 2)
+    Jm=0.4*m*pow(r, 2)
+    Jz=J0+2*m*l*l+2*Jm
+    Jy=J0+2*Jm
+    Jx=0.9*Jz
+
+
+
+
+
+    R=R0+H0
+    
+    C=(3*Mu)/pow(R, 3)
+    C=C*(Jx-Jy)/Jz
+    K=Kg/Jz
+
+    phi=phi*math.pi/180
+
+  
+
+
+
+
+
+    Amp=phi
+    
+    h=1
+    t=0
+
+    T = []
+    Phi_list = []
+
+    beta = K/2
+    w = math.sqrt(C)
+    freq = w/(2*math.pi)
+    while t < pow(2,17):
+        Phi_list.append(phi*180/math.pi)
+        T.append(t)
+        phi=Amp*math.exp(-beta*t)*math.cos(w*t)
+        t = t + h
+
+    fig, ax = plt.subplots()       
+    ax.plot(T, Phi_list, label='Аналитическое решение ' )
     ax.grid()
     ax.legend(loc=2)
-    plt.xlim([2,4])
-    ax.set_xlabel('Частота (герц * 10^(-4))')
-    ax.set_ylabel('Амплитута (град.)')
+    ax.set_xlabel('время (с)')
+    ax.set_ylabel('Угол (град.)')
+    print(freq*(10**5),' Герц 10^-5')
+    print(freq, ' Герц')
     plt.show()
 
-    
+     
 
 
 def main():
@@ -120,8 +203,8 @@ def main():
     
     simulation(Mct,Rct,H0,m,l,r, phi,10)
     simulation(Mct,Rct,H0,m,l,r, phi,0)
-    
+    Asim(Mct,Rct,H0,m,l,r, phi)
 
 
-if __name__ == "__main__":
-	main()
+
+main()
