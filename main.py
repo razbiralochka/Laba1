@@ -65,7 +65,7 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
     Phi_list = []
 
 
-    while t < pow(2,17):
+    while t < 3600*24:
         Phi_list.append(phi*180/math.pi)
         T.append(t)
         K =K_theor * (1 + random.randint(-_rand, _rand) / 100)
@@ -82,10 +82,6 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
         t = t + h
 
          
-    
-
-    
-
     N = len(Phi_list)
 
     y=np.array(Phi_list)
