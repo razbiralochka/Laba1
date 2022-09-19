@@ -63,10 +63,11 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
 
     T = []
     Phi_list = []
-
+    omega_list =[]
 
     while t < 3600*24:
         Phi_list.append(phi*180/math.pi)
+        omega_list.append(omega*180/math.pi)
         T.append(t)
         K =K_theor * (1 + random.randint(-_rand, _rand) / 100)
         k[0] = h * dphi(t,phi,omega)
@@ -96,11 +97,12 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
     
     
     
-    fig, [ax1,ax2] = plt.subplots(nrows = 2, ncols = 1 )
+    fig, [ax1,ax2,ax3] = plt.subplots(nrows = 3, ncols = 1 )
 
 
     ax1.plot(T, Phi_list, label='Возмущения: ' + str(_rand) + '%')
-    ax2.plot(xf, yf, label='АЧХ | Возмущения: ' + str(_rand) + '%')
+    ax2.plot(xf, yf, '.-',label='АЧХ | Возмущения: ' + str(_rand) + '%')
+    ax3.plot(Phi_list, omega_list,label='Фазовый портерт | Возмущения: ' + str(_rand) + '%')
     ax1.grid()
     ax1.legend(loc=2)
     ax1.set_xlabel('время (с)')
@@ -112,6 +114,10 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
     ax2.set_xlabel('Частота (герц * 10^(-5))')
     ax2.set_ylabel('Амплитута (град.)')
 
+    ax3.grid()
+    ax3.legend(loc=2)
+    ax3.set_xlabel('Угол (град.)')
+    ax3.set_ylabel('Угловая скорость (град. / c)')
     plt.show()
     
 
@@ -188,15 +194,15 @@ def Asim(_Mct,_Rct,_H0,_m,_l,_r,_phi,):
 
 
 def main():
-    
-    Mct = 500
-    Rct=0.7
-    H0 = 450
-    m=12
-    l=34
-    r=0.05
+
+    Mct = 400
+    Rct=0.6
+    H0 = 300
+    m=14
+    l=20
+    r=0.1
     phi=10
-    
+
     simulation(Mct,Rct,H0,m,l,r, phi,10)
     simulation(Mct,Rct,H0,m,l,r, phi,0)
     Asim(Mct,Rct,H0,m,l,r, phi)
