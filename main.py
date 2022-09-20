@@ -3,12 +3,15 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-
-def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
+gTime1=list()
+gPhi1=list()
+gPhi2=list()
+gTime2=list()
+def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand,mas1,mas2):
 
 
    # list_Kg=[80*0.001,160*0.001,400*0.001,4]
-    Kg=4
+    Kg=1
     R0=6371
 
     H0=_H0
@@ -17,7 +20,7 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
     m=_m*(1+random.randint(-_rand,_rand)/100)
     l=_l*(1+random.randint(-_rand,_rand)/100)
     r=_r*(1+random.randint(-_rand,_rand)/100)
-    phi=_phi*(1+random.randint(-_rand,_rand)/100)
+    phi=_phi#*(1+random.randint(-_rand,_rand)/100)
 
     Mu=3.9858*pow(10, 5)
 
@@ -65,9 +68,11 @@ def simulation(_Mct,_Rct,_H0,_m,_l,_r,_phi,_rand):
     Phi_list = []
     omega_list =[]
 
-    while t < 3600*24:
+    while t < 3600*24*2:
         Phi_list.append(phi*180/math.pi)
         omega_list.append(omega*180/math.pi)
+        mas1.append(phi*180/math.pi)
+        mas2.append(t)
         T.append(t)
         K =K_theor * (1 + random.randint(-_rand, _rand) / 100)
         k[0] = h * dphi(t,phi,omega)
@@ -174,7 +179,7 @@ def Asim(_Mct,_Rct,_H0,_m,_l,_r,_phi,):
     beta = K/2
     w = math.sqrt(C)
     freq = w/(2*math.pi)
-    while t < pow(2,17):
+    while t < 3600*72:
         Phi_list.append(phi*180/math.pi)
         T.append(t)
         phi=Amp*math.exp(-beta*t)*math.cos(w*t)
@@ -202,11 +207,14 @@ def main():
     l=20
     r=0.1
     phi=10
+    t=0
+    simulation(Mct,Rct,H0,m,l,r, phi,50,gPhi1,gTime1)
+    simulation(Mct,Rct,H0,m,l,r, phi,0, gPhi2,gTime2)
 
-    simulation(Mct,Rct,H0,m,l,r, phi,10)
-    simulation(Mct,Rct,H0,m,l,r, phi,0)
-    Asim(Mct,Rct,H0,m,l,r, phi)
 
-
+    plt.plot(gTime1,gPhi1)
+    plt.plot(gTime2, gPhi2)
+    plt.grid()
+    plt.show()
 
 main()
